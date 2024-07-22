@@ -87,22 +87,20 @@ describe('PUT method', () => {
         await Blog.insertMany(helper.initialBlog)
     })
 
-    test('update blog title', async() => {
+    test('update likes', async() => {
         // Get existing blogs
         const blogsAtStart = await helper.blogsInDb()
-        const blogToUpdate = blogsAtStart[0]
+        const existingLikes = blogsAtStart[0].likes
     
-        // Put request to update title
+        // Put request to update likes
         await api
-            .put(`/api/blogs/${blogToUpdate.id}`)
-            .send({"title": "new title!"})
+            .put(`/api/blogs/${blogsAtStart[0].id}`)
+            .send({likes: existingLikes + 1})
             .expect(200)
 
         // Checks if title has been updated
         const blogsAtEnd = await helper.blogsInDb()
-        const titles = blogsAtEnd.map(r => r.title)
-        assert(titles.includes("new title!"))
-        assert(!titles.includes(blogToUpdate.title))
+        assert.strictEqual(blogsAtEnd[0].likes, existingLikes + 1)
     })
 
     test('update invalid id', async() => {
