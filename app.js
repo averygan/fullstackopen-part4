@@ -8,11 +8,8 @@ const mongoose = require('mongoose')
 
 mongoose.set('strictQuery', false)
 
-const mongoUrl = process.env.MONGODB_URI
-mongoose.connect(mongoUrl, 
-{
-    dbName: 'blog',
-})
+mongoose.connect(config.MONGODB_URI)
+
     .then(() => {
         logger.info('connected to MongoDB')
     })
