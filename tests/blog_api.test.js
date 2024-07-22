@@ -28,15 +28,29 @@ test('check number of blogs', async () => {
 })
 
 test('unique identifier is id', async () => {
-        const response = await api
-        .get('/api/blogs')
+    const response = await api
+    .get('/api/blogs')
 
-        blogs = response.body
-        blogs.forEach(blog => {
-            assert.strictEqual(('id' in blog), true)
-            assert.strictEqual(('_id' in blog), false)
-            assert.strictEqual(('_v' in blog), false)
-        })
+    blogs = response.body
+    blogs.forEach(blog => {
+        assert.strictEqual(('id' in blog), true)
+        assert.strictEqual(('_id' in blog), false)
+        assert.strictEqual(('_v' in blog), false)
+    })
+})
+
+test('post method', async () => {
+    // Make post req
+    await api
+        .post('/api/blogs')
+        .send(helper.oneBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+    // Check that length += 1
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlog.length + 1)
+    const titles = blogsAtEnd.map(n => n.title)
+    assert(titles.includes(helper.oneBlog.title))
 })
 
 after(async () => {

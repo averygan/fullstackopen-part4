@@ -2,14 +2,13 @@ const config = require('./utils/config')
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const logger = require('./utils/logger')
 const blogRouter = require('./controllers/blogs')
+const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 
 mongoose.set('strictQuery', false)
 
 mongoose.connect(config.MONGODB_URI)
-
     .then(() => {
         logger.info('connected to MongoDB')
     })
