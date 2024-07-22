@@ -53,6 +53,17 @@ test('post method', async () => {
     assert(titles.includes(helper.oneBlog.title))
 })
 
+test('check that like defaults to zero when absent', async () => {
+    const response = await api
+        .post('/api/blogs')
+        .send(helper.oneBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const blog = response.body
+    assert.strictEqual(blog.likes, 0)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

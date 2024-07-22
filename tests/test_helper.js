@@ -5,7 +5,6 @@ const oneBlog = [
         title: "Test Blog",
         author: "Jane Doe",
         url: "https://test.com/",
-        likes: 5,
       },
 ]
 
