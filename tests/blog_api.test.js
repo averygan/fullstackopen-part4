@@ -50,7 +50,7 @@ test('post method', async () => {
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.initialBlog.length + 1)
     const titles = blogsAtEnd.map(n => n.title)
-    assert(titles.includes(helper.oneBlog.title))
+    assert(titles.includes("Test Blog"))
 })
 
 test('check that like defaults to zero when absent', async () => {
@@ -62,6 +62,14 @@ test('check that like defaults to zero when absent', async () => {
 
     const blog = response.body
     assert.strictEqual(blog.likes, 0)
+})
+
+test('check error when title or url absent', async () => {
+    const response = await api
+        .post('/api/blogs')
+        .send(helper.errorBlog)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
 })
 
 after(async () => {

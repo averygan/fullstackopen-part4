@@ -1,12 +1,15 @@
 const Blog = require('../models/blog')
 
-const oneBlog = [
-    {
+const oneBlog = {
         title: "Test Blog",
         author: "Jane Doe",
         url: "https://test.com/",
-      },
-]
+}
+
+const errorBlog = {
+        author: "Error Evan",
+        url: "https://error.com/",
+}
 
 const initialBlog = [
     {
@@ -60,4 +63,4 @@ const blogsInDb = async () => {
     return blogs.map(blog => blog.toJSON())
 }
 
-  module.exports = {oneBlog, initialBlog, nonExistingId, blogsInDb}
+module.exports = {oneBlog, errorBlog, initialBlog, nonExistingId, blogsInDb}
