@@ -7,9 +7,11 @@ const api = supertest(app)
 const helper = require('./test_helper')
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 describe('GET method', () => {
     beforeEach(async () => {
+        // login as dummy user
         await Blog.deleteMany({})
         await Blog.insertMany(helper.initialBlog)
     })
@@ -44,6 +46,8 @@ describe('GET method', () => {
 describe('POST method', () => {
     beforeEach(async () => {
         await Blog.deleteMany({})
+        await User.deleteMany({})
+        token = await helper.dummyUser()
         await Blog.insertMany(helper.initialBlog)
     })
 
@@ -51,6 +55,7 @@ describe('POST method', () => {
         // Make post req
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token.token}`)
             .send(helper.oneBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -64,6 +69,7 @@ describe('POST method', () => {
     test('check that like defaults to zero when absent', async () => {
         const response = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token.token}`)
             .send(helper.oneBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -75,8 +81,17 @@ describe('POST method', () => {
     test('check error when title or url absent', async () => {
         const response = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token.token}`)            
             .send(helper.errorBlog)
             .expect(400)
+            .expect('Content-Type', /application\/json/)
+    })
+
+    test('check error when token absent', async () => {
+        const response = await api
+            .post('/api/blogs')
+            .send(helper.errorBlog)
+            .expect(401)
             .expect('Content-Type', /application\/json/)
     })
 })
@@ -84,8 +99,17 @@ describe('POST method', () => {
 describe('PUT method', () => {
     beforeEach(async () => {
         await Blog.deleteMany({})
-        await Blog.insertMany(helper.initialBlog)
+        await User.deleteMany({})
+        token = await helper.dummyUser()
+        const dummyBlog = {
+            title: "Test Blog",
+            author: "Jane Doe",
+            url: "https://test.com/",
+            user: `${token.id}`
+    }
+        await Blog.create(dummyBlog)
     })
+
 
     test('update likes', async() => {
         // Get existing blogs
@@ -95,6 +119,7 @@ describe('PUT method', () => {
         // Put request to update likes
         await api
             .put(`/api/blogs/${blogsAtStart[0].id}`)
+            .set('Authorization', `Bearer ${token.token}`)            
             .send({likes: existingLikes + 1})
             .expect(200)
 
@@ -116,22 +141,31 @@ describe('PUT method', () => {
 describe ('DELETE method', () => {
     beforeEach(async () => {
         await Blog.deleteMany({})
-        await Blog.insertMany(helper.initialBlog)
+        await User.deleteMany({})
+        token = await helper.dummyUser()
+        const dummyBlog = {
+            title: "Test Blog",
+            author: "Jane Doe",
+            url: "https://test.com/",
+            user: `${token.id}`
+    }
+        await Blog.create(dummyBlog)
     })
 
-    test('succeeds with status code 404 if id is valid', async () => 
+    test('succeeds with status code 204 if id is valid', async () => 
     {
         const blogsAtStart = await helper.blogsInDb()
         const blogToDelete = blogsAtStart[0]
 
         await api
             .delete(`/api/blogs/${blogToDelete.id}`)
+            .set('Authorization', `Bearer ${token.token}`)
             .expect(204)
 
         const blogsAtEnd = await helper.blogsInDb()
 
         // Checks if blog length has been reduced
-        assert.strictEqual(blogsAtEnd.length, helper.initialBlog.length - 1)
+        assert.strictEqual(blogsAtEnd.length, 0)
 
         // Confirms if title has been removed 
         const titles = blogsAtEnd.map(r => r.title)
@@ -141,7 +175,15 @@ describe ('DELETE method', () => {
     test('404 if id is invalid', async () => {
         await api
             .delete(`/api/blogs/12345`)
+            .set('Authorization', `Bearer ${token.token}`)
             .expect(404)
+    })
+
+    test('401 if token and id are invalid', async () => {
+        await api
+            .delete(`/api/blogs/12345`)
+            .set('Authorization', `Bearer 123456`)
+            .expect(401)
     })
 })
 
