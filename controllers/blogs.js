@@ -11,13 +11,7 @@ blogRouter.get('/', async (request, response) => {
 
 blogRouter.post('/', async (request, response) => {
   const body = request.body
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
-  const user = await User.findById(decodedToken.id)
+  const user = request.user
 
   if (!body.title || !body.url)
   {
@@ -42,27 +36,9 @@ blogRouter.post('/', async (request, response) => {
   response.status(201).json(result)
 })
 
-// blogRouter.delete('/:id', async (request, response) => {
-//   id = request.params.id
-//   if (!mongoose.Types.ObjectId.isValid(id))
-//     return response.status(404).end()
-
-//   const result = await Blog.findByIdandDelAete(id)
-//   if (result)
-//     response.status(204).end()
-//   else
-//     response.status(404).end()
-// })
-
 blogRouter.delete('/:id', async (request, response) => {
-  id = request.params.id
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
-  const user = await User.findById(decodedToken.id)
+  const id = request.params.id
+  const user = request.user
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return response.status(404).end()
