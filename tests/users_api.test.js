@@ -83,7 +83,6 @@ describe('tests with no users in db', () => {
           .expect('Content-Type', /application\/json/)
     
         const usersAtEnd = await helper.usersInDb()
-        console.log(result.body.error)
         assert.strictEqual(usersAtEnd.length, usersAtStart.length)
       })
 
@@ -103,7 +102,6 @@ describe('tests with no users in db', () => {
           .expect('Content-Type', /application\/json/)
     
         const usersAtEnd = await helper.usersInDb()
-        console.log(result.body.error)
         assert.strictEqual(usersAtEnd.length, usersAtStart.length)
       })
 })
