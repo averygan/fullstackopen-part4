@@ -8,5 +8,6 @@ content-type: application/json
     "title" : "New blog post",
     "author" : "Jane",
     "url" : "www.google.com",
-    "likes" : 123
+    "likes" : 123,
+    "userId" : "66a4f4d75be58658ed4d25"
 }

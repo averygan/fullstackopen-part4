@@ -1,22 +1,38 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const mongoose = require('mongoose');
 
 blogRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1, id: 1 })
   response.json(blogs)
 })
 
 blogRouter.post('/', async (request, response) => {
-  const { title, url } = request.body
-  if (!title || !url)
+  const body = request.body
+
+  const user = await User.findById(body.userId)
+
+  if (!body.title || !body.url)
   {
     return response.status(400).json({
       error: 'Title and URL are required fields'
     })
   }
-  const blog = new Blog(request.body)
+
+  const blog = new Blog({
+    title: body.title,
+    url: body.url,
+    likes: body.likes === undefined ? false : body.likes,
+    user: user.id
+  })
+
   const result = await blog.save()
+
+  // add blog to user
+  user.blogs = user.blogs.concat(result._id)
+  await user.save()
+
   response.status(201).json(result)
 })
 
