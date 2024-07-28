@@ -23,6 +23,7 @@ blogRouter.post('/', middleware.userExtractor, async (request, response) => {
 
   const blog = new Blog({
     title: body.title,
+    author: body.author === undefined ? false : body.author,
     url: body.url,
     likes: body.likes === undefined ? false : body.likes,
     user: user.id
